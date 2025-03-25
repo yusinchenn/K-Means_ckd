@@ -600,6 +600,9 @@ fig.show()
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 
+# 計算群組概況（每個群組的每個特徵的平均值）
+cluster_profile = df_numeric.groupby('Cluster').mean()
+
 # 將群組平均數據正規化
 normalized_profile = pd.DataFrame(
     scaler.fit_transform(cluster_profile),

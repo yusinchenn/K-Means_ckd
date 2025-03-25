@@ -128,8 +128,8 @@ Key findings:
 ---
 
 ## 👥 Contributors / 共同協作者  
-- (@lai5566)
-- (@yusinchenn)
+- @lai5566
+- @yusinchenn
 ---
 
 ## 🔗 References / 參考資料  

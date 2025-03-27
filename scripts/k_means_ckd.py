@@ -17,197 +17,8 @@ K-means分群
 這表示分群時，Chronic Kidney Disease: yes 該欄位並未引入，最後得到群的病人時，才引入
 
 最後，請透過文字圖表來表示，每群的特徵
-"""
 
-# @title
-# from google.colab import drive
-# drive.mount('/content/drive
-# @title
-# import numpy as np
-# import pandas as pd
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# import math
-
-# @title
-# file_path = "/content/drive/My Drive/kidney_disease.csv"
-# data = pd.read_csv(file_path)
-
-# @title
-# data=pd.read_csv("kidney_disease.csv")
-
-# @title
-# print("資料筆數:",len(data))
-# print("欄位數量",len(data.columns))
-
-# @title
-# # 匯入必要的套件
-# import pandas as pd
-# import numpy as np
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from sklearn.cluster import KMeans
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.metrics import silhouette_score
-
-# # 讀取資料
-# df = data
-# print("資料前五筆:")
-# print(df.head())
-
-# # 對於類別變數，若需要轉換數值，可採用 One-Hot Encoding 或 label encoding
-# # 這裡以 One-Hot Encoding 為例 (若欄位種類不多)
-# cat_cols = df.select_dtypes(include=['object']).columns.tolist()
-# # 排除掉 'Chronic Kidney Disease' (分群時不納入)
-# if 'Chronic Kidney Disease' in cat_cols:
-#     cat_cols.remove('Chronic Kidney Disease')
-# df = pd.get_dummies(df, columns=cat_cols, drop_first=True)
-
-# @title
-# # 分群前，先標準化特徵
-# scaler = StandardScaler()
-
-# # Check if 'Chronic Kidney Disease' is in the DataFrame columns
-# if 'Chronic Kidney Disease' in df.columns:
-#     scaled_features = scaler.fit_transform(df.drop(columns=['Chronic Kidney Disease']))
-# # If not, proceed without dropping it (or try dropping 'ckd')
-# else:
-#     scaled_features = scaler.fit_transform(df)  # or try df.drop(columns=['ckd']) if applicable
-#     print("Column 'Chronic Kidney Disease' not found, proceeding without dropping it.") #Added this line to explain what happened
-
-# # 使用 Elbow Method 決定最佳分群數
-# sse = []
-# k_range = range(2, 10)
-# for k in k_range:
-#     kmeans = KMeans(n_clusters=k, random_state=42)
-#     kmeans.fit(scaled_features)
-#     sse.append(kmeans.inertia_)
-
-# plt.figure(figsize=(8, 4))
-# plt.plot(k_range, sse, marker='o')
-# plt.xlabel('Number of clusters')
-# plt.ylabel('SSE')
-# plt.title('Elbow Method for Optimal k')
-# plt.show()
-
-# # 依圖形或 silhouette score 決定最佳群數
-# # 根據圖片中的肘部圖（Elbow Plot），可以發現在
-# # K=3 時，SSE（總平方和）有一個明顯的拐點，也就是在此之後隨著
-# # K 值增加，SSE 的下降速度變得緩慢，這意味著增加更多的群數對於解釋資料變異貢獻不大。因此，最佳的
-# # K 值是 3。
-# optimal_k = 3
-# kmeans = KMeans(n_clusters=optimal_k, random_state=42)
-# df['cluster'] = kmeans.fit_predict(scaled_features)
-
-# # 檢查各群數量
-# print("各群資料筆數:")
-# print(df['cluster'].value_counts())
-
-# # 對各群計算描述性統計 (平均值、中位數)
-# cluster_stats = df.groupby('cluster').agg(['mean', 'median', 'std'])
-# print("群組描述統計:")
-# print(cluster_stats
-
-# @title
-# # 引入原始的 Chronic Kidney Disease 欄位分析每群的腎臟病患者比例
-# # 假設該欄位的值為 "Yes" 與 "No"
-# # 先讀入原始資料中的該欄位 (若在前處理時已移除，可另存原始 df)
-# # 此處假設原始欄位已在 df 中，且未經 One-Hot Encoding 處理
-# if 'Chronic Kidney Disease_yes' in df.columns and 'Chronic Kidney Disease_no' in df.columns:
-#     ckd_ratio = df.groupby('cluster')[['Chronic Kidney Disease_yes', 'Chronic Kidney Disease_no']].sum()
-#     # Normalize the counts to get the ratio
-#     ckd_ratio['ckd_yes_ratio'] = ckd_ratio['Chronic Kidney Disease_yes'] / (ckd_ratio['Chronic Kidney Disease_yes'] + ckd_ratio['Chronic Kidney Disease_no'])
-#     ckd_ratio['ckd_no_ratio'] = ckd_ratio['Chronic Kidney Disease_no'] / (ckd_ratio['Chronic Kidney Disease_yes'] + ckd_ratio['Chronic Kidney Disease_no'])
-#     # Select the relevant columns
-#     ckd_ratio = ckd_ratio[['ckd_yes_ratio', 'ckd_no_ratio']]
-#     print("各群腎臟病比例:")
-#     print(ckd_ratio)
-# else:
-#     print("One-hot encoded columns for 'Chronic Kidney Disease' not found. Please check your data preprocessing.")
-# #---
-
-# @title
-# # 根據各群特性給予群別命名與醫療建議
-# # (以下僅為示範，實際命名與建議應依照統計結果與臨床判讀)
-# cluster_definitions = {
-#     0: {
-#         "name": "高血脂型",
-#         "description": "該群平均血脂值偏高，伴隨較高之腎臟病比率。",
-#         "recommendation": "建議加強飲食控管、增加有氧運動，並定期追蹤血脂及腎功能。"
-#     },
-#     1: {
-#         "name": "代謝症候群型",
-#         "description": "該群可能兼具高血壓、糖尿病等代謝疾病，且腎臟病比例中等。",
-#         "recommendation": "建議調整生活作息，控制飲食熱量，並定期檢查血壓、血糖。"
-#     },
-#     2: {
-#         "name": "健康型",
-#         "description": "該群大部分數值較正常，腎臟病比例較低。",
-#         "recommendation": "建議持續維持良好生活習慣，定期健康檢查。"
-#     }
-# }
-
-# # 輸出每群的定義與建議
-# for clus, info in cluster_definitions.items():
-#     print(f"群組 {clus}: {info['name']}")
-#     print(f"特徵描述: {info['description']}")
-#     print(f"醫療建議: {info['recommendation']}\n")
-
-# @title
-# # 載入視覺化所需套件
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# import numpy as np
-
-# # 調整要呈現的變數（請依實際需要選取合適的數值型欄位）
-# # 此處以「Age (yrs)」、「Blood Pressure (mm/Hg)」與「Albumin」為例
-# features_to_plot = ['Age (yrs)', 'Blood Pressure (mm/Hg)', 'Albumin']
-
-# # 針對各群以箱型圖呈現變數分布，並於標題中標示群組名稱
-# # 這裡利用先前命名的群組定義（例如：群組 0 為「高血脂型」、1 為「代謝症候群型」、2 為「健康型」）
-# cluster_names = {
-#     0: "高血脂型",
-#     1: "代謝症候群型",
-#     2: "健康型"
-# }
-
-# for feature in features_to_plot:
-#     plt.figure(figsize=(8, 4))
-#     sns.boxplot(x='cluster', y=feature, data=df)
-#     plt.xlabel("群組")
-#     plt.ylabel(feature)
-#     # 利用群組編號對應群組名稱，顯示於標題中
-#     plt.title(f"各群 {feature} 分布 (群組名稱: 0-{cluster_names[0]}, 1-{cluster_names[1]}, 2-{cluster_names[2]})")
-#     plt.show()
-
-# # 若需要使用雷達圖呈現多變數群組特徵，也可參考下列程式碼
-# import matplotlib.cm as cm
-
-# def plot_radar_chart(df_cluster, features, title):
-#     # 計算每群各特徵平均值
-#     stats = df_cluster[features].mean().tolist()
-#     stats += stats[:1]  # 繞回起點
-#     angles = [n / float(len(features)) * 2 * np.pi for n in range(len(features))]
-#     angles += angles[:1]
-
-#     plt.figure(figsize=(6,6))
-#     ax = plt.subplot(111, polar=True)
-#     plt.xticks(angles[:-1], features)
-#     ax.plot(angles, stats, linewidth=1, linestyle='solid')
-#     ax.fill(angles, stats, alpha=0.3)
-#     plt.title(title)
-#     plt.show()
-
-# # 調整雷達圖要呈現的變數列表（與箱型圖相同）
-# features_list = features_to_plot
-
-# # 依據各群畫出雷達圖，同時在標題中顯示群組名稱
-# for clus in sorted(df['cluster'].unique()):
-#     group_name = cluster_names.get(clus, f"群組 {clus}")
-#     title = f"{group_name} (群組 {clus}) 特徵雷達圖"
-#     plot_radar_chart(df[df['cluster'] == clus], features_list, title)
-
-"""### 先把這個雲端硬碟新增捷徑到自己帳號的硬碟裡
+### 先把這個雲端硬碟新增捷徑到自己帳號的硬碟裡
 [共用雲端硬碟](https://drive.google.com/drive/folders/1XsTQzu-a0ktHBfYL1Oq619gIY98t4w6w?usp=sharing)
 
 [建立捷徑說明](https://docs.google.com/document/d/1LqTN5l97p2zFkWafLXgoJ8_0TbI-VzQ7qJiviQzcDl8/edit?usp=sharing)
@@ -894,7 +705,7 @@ def name_clusters(cluster_features):
                 name = "老年慢性腎病群"
             # 若血壓平均值大於或等於 80，命名為「高血壓腎病群」
             elif features[('Blood Pressure (mm/Hg)', 'mean')] >= 80:
-                name = "高血壓腎病群"
+                name = "高血壓重度腎病群"
             # 其他情況下，命名為「重度腎臟病患者群」
             else:
                 name = "重度腎臟病患者群"
@@ -915,24 +726,48 @@ def medical_advice_for_clusters(cluster_names, cluster_features):
     cluster_advice = {}  # 存放各群醫療建議的字典
     # 根據每個群的名稱來決定建議內容
     for cluster, name in cluster_names.items():
-        if name == "老年慢性腎病群":
-            advice = ("需關注老年患者的多重共病風險，如糖尿病、高血壓等；"
-                      "避免使用腎毒性藥物 (NSAIDs, 抗生素等)，並定期追蹤腎功能。")
-        elif name == "高血壓腎病群":
-            advice = ("需控制血壓，可能需要降壓藥物 (如 ACEI、ARB) 以防腎功能惡化；"
-                      "飲食上建議低鹽飲食，定期檢查血壓與腎功能。")
-        elif name == "重度腎臟病患者群":
-            advice = ("需要密切監測腎功能，採取低鹽、低蛋白飲食；"
-                      "定期檢查腎臟指標，並與腎臟科醫師合作調整治療方案。")
+        if name == "重度腎臟病患者群":
+            advice = (
+                "此群患者雖屬中度腎功能異常群，但仍顯示較明顯的腎臟損害（血清肌酐平均約 3.55 mgs/dL）。\n"
+                "建議：\n"
+                "1. 嚴格限制蛋白質攝入，採用低鹽、低蛋白飲食，以減輕腎臟負擔。\n"
+                "2. 定期監測腎功能指標（如肌酐、尿素及電解質），以便早期發現病情惡化。\n"
+                "3. 與腎臟科醫師密切合作，評估是否需要進一步調整治療方案，並考慮使用腎保護藥物。\n"
+                "4. 加強健康衛教，提醒患者戒除不良嗜好，控制血糖與血壓，維持良好的生活習慣。"
+            )
         elif name == "低風險年輕健康群":
-            advice = ("雖然目前健康風險較低，但仍需保持健康生活方式，"
-                      "包括適度運動、均衡飲食及定期健康檢查，並進行預防性衛教。")
+            advice = (
+                "此群患者年齡偏輕（平均約 44 歲），臨床指標均接近正常水準，風險低。\n"
+                "建議：\n"
+                "1. 維持均衡飲食和規律運動，保持理想體重，促進心血管及腎功能健康。\n"
+                "2. 定期進行健康檢查，包括血壓、血糖和腎功能評估，以預防未來慢性疾病發生。\n"
+                "3. 加強衛教，建立健康生活模式，避免熬夜和吸菸等不良習慣。"
+            )
+        elif name == "高血壓重度腎病群":
+            advice = (
+                "此群患者呈現極高的腎功能損害（血清肌酐平均約 11.13 mgs/dL），並伴隨嚴重的高血壓（Hypertension 約 85%）。\n"
+                "建議：\n"
+                "1. 必須嚴格控制血壓，可能需要使用 ACEI 或 ARB 類藥物來保護腎臟功能。\n"
+                "2. 採用低鹽、低蛋白飲食，並密切監控血尿素、肌酐及鉀含量，防止電解質失衡。\n"
+                "3. 定期接受腎功能檢查，根據檢查結果及時調整治療方案，並積極進行營養諮詢。\n"
+                "4. 衛教上需特別強調藥物服用的重要性及日常生活管理，避免過度勞累。"
+            )
+        elif name == "老年慢性腎病群":
+            advice = (
+                "此群患者年齡較高（平均約 59 歲），常伴隨多重慢性病（如糖尿病與高血壓），腎功能亦呈現輕度異常。\n"
+                "建議：\n"
+                "1. 定期進行全面健康檢查，特別是腎功能、血壓與血糖的監測，及早發現及治療共病。\n"
+                "2. 採用個別化的低鹽、低蛋白飲食，並在營養師指導下改善飲食結構，確保營養均衡。\n"
+                "3. 鼓勵適度運動，如太極、散步等，以促進血液循環和增強體能，但避免過度負荷。\n"
+                "4. 衛教上要提醒患者注意正確服藥，避免藥物間的不良互動，並保持良好的生活作息。"
+            )
         else:
             advice = "請根據實際狀況進行進一步評估與建議。"
-        cluster_advice[cluster] = advice  # 儲存該群的建議內容
+        cluster_advice[name] = advice  # 直接以名稱作為 key 儲存建議內容
+
     return cluster_advice
 
 # 呼叫醫療建議函式，並輸出各群建議
 cluster_advice = medical_advice_for_clusters(cluster_names, cluster_features)
-for cluster, advice in cluster_advice.items():
-    print(f"群組 {cluster} 建議: {advice}\n")
+for name, advice in cluster_advice.items():
+    print(f"{name}:\n{advice}\n")
